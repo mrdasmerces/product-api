@@ -8,7 +8,7 @@ export class AwsBuildRequest {
 
     const QueueUrl = `https://sqs.${process.env.AWS_REGION}.amazonaws.com/${accountId}/${sqsQueueName}`;
     
-    if(typeof messageBody === 'object') messageBody = JSON.stringify(messageBody);
+    messageBody = JSON.stringify(messageBody);
 
     const params = {
       MessageBody: messageBody,

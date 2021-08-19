@@ -11,3 +11,6 @@ jspm_packages
 package-lock.json
 
 .DS_Store
+
+.nyc_output
+coverage

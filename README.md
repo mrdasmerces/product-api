@@ -57,7 +57,8 @@ But if after the retries the API still throwing errros, I leverage SQS Queues to
 * [TypeScript](https://www.typescriptlang.org/)
 * [Serverless Framework](https://www.serverless.com/)
 * [Webpack](https://webpack.js.org/)
-* [Jest](https://jestjs.io/)
+* [Mocha](https://mochajs.org/)
+* [Chai](https://www.chaijs.com/)
 * [Axios](https://www.npmjs.com/package/axios)
 * [Axios-Retry](https://www.npmjs.com/package/axios-retry)
 * [AWS-SDK](https://aws.amazon.com/pt/sdk-for-javascript/)
@@ -91,7 +92,7 @@ To get a local copy up and running follow these simple example steps.
    ```sh
    sudo npm install -g serverless
    ```
-4. Run unit testing
+4. Run tests
    ```sh
    npm test
    ```
