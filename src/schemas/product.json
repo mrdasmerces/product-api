@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "ProductModel",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Product identifier",
+      "type": "string"
+    },
+    "name": {
+      "description": "Product name",
+      "type": "string"
+    },
+    "price": {
+      "description": "Price",
+      "type": "number"
+    },
+    "quantity": {
+      "description": "Quantity",
+      "type": "number"
+    }
+  },
+  "required": ["name", "price", "quantity"]
+}

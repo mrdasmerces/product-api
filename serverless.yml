@@ -1,0 +1,190 @@
+service: product-catalog-api
+
+plugins:
+  - serverless-webpack
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+  versionFunctions: false
+  environment:
+    MOCK_API_BASEURL: "https://ev5uwiczj6.execute-api.eu-central-1.amazonaws.com/test"
+  iamRoleStatements:
+  - Effect: "Allow"
+    Resource: "*"
+    Action:
+      - "sqs:*"
+  apiGateway:
+    request:
+      schemas:
+        product-schema:
+          name: ProductModel
+          schema: ${file(src/schemas/product.json)}
+          description: "A Model validation for single product"
+
+package:
+  individually: true
+  exclude:
+    - "**/*"
+
+functions:
+  productGetOne:
+    handler: src/get/getHandler.handler
+    package:
+      include:
+        - src/get/getHandler.ts
+    events:
+      - http:
+          method: get
+          path: /{id}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  productGetAll:
+    handler: src/get/getHandler.handler
+    package:
+      include:
+        - src/get/getHandler.ts
+    events:
+      - http:
+          method: get
+          path: /
+
+  productCreate:
+    handler: src/create/createHandler.handler
+    package:
+      include:
+        - src/create/createHandler.ts
+    events:
+      - http:
+          method: post
+          path: /
+          request:
+            schemas:
+              application/json: product-schema
+
+  productUpdate:
+    handler: src/update/updateHandler.handler
+    package:
+      include:
+        - src/update/updateHandler.ts
+    events:
+      - http:
+          method: put
+          path: /{id}
+          request:
+            schemas:
+              application/json: product-schema
+            parameters:
+              paths:
+                id: true
+
+  productDelete:
+    handler: src/delete/deleteHandler.handler
+    package:
+      include:
+        - src/delete/deleteHandler.ts
+    events:
+      - http:
+          method: delete
+          path: /{id}
+          request:
+            parameters:
+              paths:
+                id: true
+
+  createQueueConsumer:
+    handler: src/create/createQueueConsumer.handler
+    package:
+      include:
+        - src/create/createQueueConsumer.ts
+    events:
+      - sqs:
+          arn: "#{CreateQueue.Arn}"
+          batchSize: 1
+
+  updateQueueConsumer:
+    handler: src/update/updateQueueConsumer.handler
+    package:
+      include:
+        - src/update/updateQueueConsumer.ts
+    events:
+      - sqs:
+          arn: "#{UpdateQueue.Arn}"
+          batchSize: 1
+
+  deleteQueueConsumer:
+    handler: src/delete/deleteQueueConsumer.handler
+    package:
+      include:
+        - src/delete/deleteQueueConsumer.ts
+    events:
+      - sqs:
+          arn: "#{DeleteQueue.Arn}"
+          batchSize: 1
+
+resources:
+  Resources:
+    CreateDeadLetterQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:service}-create-deadletter-queue
+        VisibilityTimeout: 160
+        DelaySeconds: 0
+        ReceiveMessageWaitTimeSeconds: 0
+        MessageRetentionPeriod: 604800
+        MaximumMessageSize: 262144
+
+    CreateQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:service}-create-queue
+        VisibilityTimeout: 160
+        DelaySeconds: 60
+        ReceiveMessageWaitTimeSeconds: 0
+        MessageRetentionPeriod: 604800
+        MaximumMessageSize: 262144
+
+    UpdateDeadLetterQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:service}-update-deadletter-queue
+        VisibilityTimeout: 160
+        DelaySeconds: 0
+        ReceiveMessageWaitTimeSeconds: 0
+        MessageRetentionPeriod: 604800
+        MaximumMessageSize: 262144
+
+    UpdateQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:service}-update-queue
+        VisibilityTimeout: 160
+        DelaySeconds: 60
+        ReceiveMessageWaitTimeSeconds: 0
+        MessageRetentionPeriod: 604800
+        MaximumMessageSize: 262144
+
+    DeleteDeadLetterQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:service}-delete-deadletter-queue
+        VisibilityTimeout: 160
+        DelaySeconds: 0
+        ReceiveMessageWaitTimeSeconds: 0
+        MessageRetentionPeriod: 604800
+        MaximumMessageSize: 262144
+
+    DeleteQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:service}-delete-queue
+        VisibilityTimeout: 160
+        DelaySeconds: 60
+        ReceiveMessageWaitTimeSeconds: 0
+        MessageRetentionPeriod: 604800
+        MaximumMessageSize: 262144
